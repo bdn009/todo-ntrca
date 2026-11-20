@@ -1,1 +1,1930 @@
+<!DOCTYPE html>
+<html lang="bn" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>১৯তম এনটিআরসিএ ফ্লেক্সিবল ট্র্যাকার (স্কুল-২ ও কলেজ প্রদর্শক)</title>
 
+  <!-- Google Fonts: Hind Siliguri with clean fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Hind Siliguri"', 'Noto Sans Bengali', 'SolaimanLipi', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Base typography & smooth interactions */
+    body {
+      font-family: 'Hind Siliguri', 'Noto Sans Bengali', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Custom minimal scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.35);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.55);
+    }
+
+    /* Satisfying checkbox micro-animation */
+    .task-checkbox {
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .task-checkbox:active {
+      transform: scale(0.88);
+    }
+    .task-checkbox.checked {
+      animation: checkPop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes checkPop {
+      0% { transform: scale(0.82); }
+      55% { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    /* Completed row strike-through */
+    .task-done .task-title {
+      text-decoration: line-through;
+      opacity: 0.52;
+    }
+    .task-done .task-tip {
+      opacity: 0.42;
+    }
+
+    /* Accordion chevron rotation */
+    .accordion-chevron {
+      transition: transform 0.25s ease;
+    }
+    .accordion-open .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Toast entrance */
+    @keyframes toastSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .toast-enter {
+      animation: toastSlideUp 0.24s ease-out forwards;
+    }
+
+    /* Subtle confetti celebration particles */
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+      animation: confettiBurst 0.9s ease-out forwards;
+    }
+    @keyframes confettiBurst {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(0.35);
+      }
+    }
+
+    /* Hide scrollbar for pill strips on mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-[#080d1a] text-slate-100 selection:bg-indigo-500/30 antialiased">
+  <!-- Subtle ambient radial backdrop -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute -top-32 -left-24 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl"></div>
+    <div class="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-emerald-500/8 blur-3xl"></div>
+  </div>
+
+  <!-- Main Wrapper -->
+  <div class="max-w-5xl mx-auto px-3.5 sm:px-6 py-5 sm:py-8 space-y-5 sm:space-y-6">
+
+    <!-- ==================== 1. HEADER & BACKUP CONTROLS ==================== -->
+    <header class="rounded-2xl bg-slate-900/90 border border-slate-800/90 p-4 sm:p-5 shadow-xl shadow-black/25">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="space-y-1.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">
+              <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+              সিকোয়েন্স-ভিত্তিক ট্র্যাকার
+            </span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">
+              ১০০% অফলাইন ও তারিখমুক্ত
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white leading-tight">
+            ১৯তম এনটিআরসিএ প্রস্তুতি ট্র্যাকার
+          </h1>
+          <p class="text-sm sm:text-base text-slate-400 font-medium">
+            স্কুল-২ + কলেজ প্রদর্শক <span class="mx-1 text-slate-600">•</span> তারিখমুক্ত ফ্লেক্সিবল প্ল্যান
+          </p>
+        </div>
+
+        <!-- Backup / Restore / Reset Actions -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="downloadBackupBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-200 border border-indigo-500/30 transition-all cursor-pointer"
+            title="JSON ফাইল হিসেবে ব্যাকআপ ডাউনলোড করুন"
+          >
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>ডাউনলোড ব্যাকআপ</span>
+          </button>
+
+          <button
+            id="openRestoreBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700/90 text-slate-200 border border-slate-700 transition-all cursor-pointer"
+            title="ব্যাকআপ ফাইল বা কোড থেকে রিস্টোর করুন"
+          >
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>রিস্টোর</span>
+          </button>
+
+          <button
+            id="openResetBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/25 transition-all cursor-pointer"
+            title="সব অগ্রগতি রিসেট করুন"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>রিসেট</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================== 2. NEXT UP HERO CARD + FOCUS TIMER ==================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+
+      <!-- Next Up Card -->
+      <div class="lg:col-span-7 rounded-2xl bg-gradient-to-br from-indigo-500/15 via-slate-900 to-emerald-500/10 border border-indigo-500/30 p-5 shadow-xl shadow-black/25 flex flex-col justify-between">
+        <div>
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="inline-flex items-center gap-1.5 text-xs font-bold tracking-wider text-indigo-300">
+              <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              পরবর্তী সেশন (Next Up)
+            </span>
+            <span id="nextUpPositionBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/80">
+              পর্ব ১ • সেট ১
+            </span>
+          </div>
+
+          <div id="nextUpBody" class="space-y-2.5">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-slate-800/90 space-y-3">
+          <div id="nextUpButtons" class="flex flex-wrap items-center gap-2.5">
+            <button
+              id="heroMarkDoneBtn"
+              type="button"
+              class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              <span>সম্পন্ন করুন</span>
+            </button>
+
+            <button
+              id="heroEditNoteBtn"
+              type="button"
+              class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>নোট লিখুন</span>
+            </button>
+          </div>
+
+          <!-- Reassuring date-free note -->
+          <p class="text-xs text-slate-400 leading-relaxed flex items-start gap-1.5">
+            <span class="text-emerald-400 shrink-0 mt-0.5">🌿</span>
+            <span>নিজের গতিতে এগোন — ২-৩ দিন বিরতি নিলেও সমস্যা নেই, যেখানে থেমেছেন সেখান থেকেই শুরু করুন।</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Focus Timer Card -->
+      <div class="lg:col-span-5 rounded-2xl bg-slate-900/90 border border-slate-800/90 p-5 shadow-xl shadow-black/25 flex flex-col justify-between">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-300">
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>ফোকাস টাইমার</span>
+          </div>
+          <span id="timerStatusBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400">
+            প্রস্তুত
+          </span>
+        </div>
+
+        <!-- Timer Readout -->
+        <div class="text-center my-1">
+          <div id="timerDisplay" class="text-4xl sm:text-5xl font-bold tracking-wider tabular-nums text-white">
+            ৯০:০০
+          </div>
+          <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden mt-3">
+            <div id="timerProgressBar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <!-- 3 Quick Presets -->
+        <div class="grid grid-cols-3 gap-2 my-3.5">
+          <button
+            type="button"
+            data-preset="90"
+            class="timer-preset-btn px-2 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-indigo-500/20 border-indigo-500/45 text-indigo-200"
+          >
+            ৯০ মিনিট
+            <span class="block text-[10px] opacity-80 font-normal mt-0.5">ফুল সেশন</span>
+          </button>
+          <button
+            type="button"
+            data-preset="45"
+            class="timer-preset-btn px-2 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-800/80 border-slate-700/80 text-slate-300 hover:border-indigo-400/60"
+          >
+            ৪৫ মিনিট
+            <span class="block text-[10px] opacity-75 font-normal mt-0.5">শিট ও কুইজ</span>
+          </button>
+          <button
+            type="button"
+            data-preset="25"
+            class="timer-preset-btn px-2 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-800/80 border-slate-700/80 text-slate-300 hover:border-indigo-400/60"
+          >
+            ২৫ মিনিট
+            <span class="block text-[10px] opacity-75 font-normal mt-0.5">দ্রুত রিভিশন</span>
+          </button>
+        </div>
+
+        <!-- Play/Pause & Reset -->
+        <div class="flex items-center gap-2">
+          <button
+            id="timerToggleBtn"
+            type="button"
+            class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white transition-all cursor-pointer"
+          >
+            <svg id="timerPlayIcon" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            <svg id="timerPauseIcon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+            <span id="timerToggleText">শুরু করুন</span>
+          </button>
+          <button
+            id="timerResetBtn"
+            type="button"
+            class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer"
+          >
+            রিসেট
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. PROGRESS DASHBOARD ==================== -->
+    <section class="rounded-2xl bg-slate-900/90 border border-slate-800/90 p-4 sm:p-5 shadow-xl shadow-black/25 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-white">প্রস্তুতির সামগ্রিক অগ্রগতি</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+            মূল ক্লাস সম্পন্ন: <strong id="coreProgressText" class="text-indigo-400">০/৫৬</strong>
+            <span class="mx-1.5 text-slate-700">•</span>
+            মোট টাস্ক সম্পন্ন: <strong id="totalProgressText" class="text-emerald-400">০/৭৩</strong>
+          </p>
+        </div>
+        <div class="text-left sm:text-right">
+          <span id="overallPercentText" class="text-2xl sm:text-3xl font-bold text-indigo-400 tabular-nums">০%</span>
+        </div>
+      </div>
+
+      <!-- Overall Progress Bar -->
+      <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5">
+        <div
+          id="overallProgressBar"
+          class="h-full rounded-full bg-gradient-to-r from-indigo-500 via-emerald-500 to-amber-400 transition-all duration-500 ease-out"
+          style="width: 0%"
+        ></div>
+      </div>
+
+      <!-- 4 Subject Mini-Cards + Revision & Technical Mini-Stat -->
+      <div id="subjectStatsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 pt-1">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+    <!-- ==================== 4. FILTERS, SEARCH & VIEW CONTROLS ==================== -->
+    <section class="rounded-2xl bg-slate-900/90 border border-slate-800/90 p-4 shadow-xl shadow-black/25 space-y-3.5">
+
+      <!-- Search + Add Task + Expand/Collapse -->
+      <div class="flex flex-col md:flex-row md:items-center gap-2.5">
+        <!-- Search Box -->
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="ক্লাস, টপিক বা আপনার নোট খুঁজুন..."
+            class="w-full pl-10 pr-9 py-2.5 rounded-xl text-sm bg-slate-950/70 border border-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70 transition-all"
+          />
+          <button
+            id="clearSearchBtn"
+            type="button"
+            class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 text-xs cursor-pointer"
+            title="সার্চ মুছুন"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            id="openAddTaskBtn"
+            type="button"
+            class="flex-1 md:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>নতুন টাস্ক যোগ করুন</span>
+          </button>
+
+          <button
+            id="toggleAllSetsBtn"
+            type="button"
+            class="inline-flex items-center justify-center px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all cursor-pointer"
+          >
+            সব খুলুন
+          </button>
+        </div>
+      </div>
+
+      <!-- Subject Filter Pills & Status Filter Pills -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2.5 border-t border-slate-800/90">
+        <!-- Subject Pills -->
+        <div id="subjectFilterBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+          <button type="button" data-subject="all" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            সব
+          </button>
+          <button type="button" data-subject="math" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            গণিত
+          </button>
+          <button type="button" data-subject="english" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            ইংরেজি
+          </button>
+          <button type="button" data-subject="bangla" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            বাংলা
+          </button>
+          <button type="button" data-subject="gk" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            সাধারণ জ্ঞান
+          </button>
+          <button type="button" data-subject="extra" class="subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer">
+            রিভিশন ও টেকনিক্যাল
+          </button>
+        </div>
+
+        <!-- Status Pills -->
+        <div id="statusFilterBar" class="inline-flex items-center p-1 rounded-xl bg-slate-950/70 border border-slate-800 self-start lg:self-auto shrink-0">
+          <button type="button" data-status="all" class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer">
+            সব
+          </button>
+          <button type="button" data-status="pending" class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer">
+            বাকি আছে
+          </button>
+          <button type="button" data-status="done" class="status-pill px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer">
+            সম্পন্ন
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. 3 PHASES & 12 DATE-FREE SETS ==================== -->
+    <main id="setsContainer" class="space-y-4">
+      <!-- Populated dynamically -->
+    </main>
+
+    <!-- Subtle Footer -->
+    <footer class="text-center py-6 text-xs text-slate-500 space-y-1">
+      <p>আপনার সব অগ্রগতি ও নোট স্বয়ংক্রিয়ভাবে এই ব্রাউজারে (অফলাইনে) সংরক্ষিত হচ্ছে।</p>
+      <p>ডিভাইস বদলালে উপরের <strong class="text-slate-400">ডাউনলোড ব্যাকআপ</strong> ও <strong class="text-slate-400">রিস্টোর</strong> বাটন ব্যবহার করুন।</p>
+    </footer>
+  </div>
+
+  <!-- ==================== MODAL 1: ADD CUSTOM TASK ==================== -->
+  <div id="addTaskModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-white">নতুন টাস্ক যোগ করুন</h3>
+        <button type="button" data-close-modal="addTaskModal" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">✕</button>
+      </div>
+
+      <form id="addTaskForm" class="space-y-3.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="customSetSelect" class="block text-xs font-semibold text-slate-400 mb-1">সেট নির্বাচন করুন</label>
+            <select id="customSetSelect" class="w-full px-3 py-2.5 rounded-xl text-sm bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label for="customSubjectSelect" class="block text-xs font-semibold text-slate-400 mb-1">বিষয়</label>
+            <select id="customSubjectSelect" class="w-full px-3 py-2.5 rounded-xl text-sm bg-slate-950 border border-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="extra">রিভিশন ও টেকনিক্যাল</option>
+              <option value="math">গণিত</option>
+              <option value="english">ইংরেজি</option>
+              <option value="bangla">বাংলা</option>
+              <option value="gk">সাধারণ জ্ঞান</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="customTitleInput" class="block text-xs font-semibold text-slate-400 mb-1">টাস্কের নাম *</label>
+          <input
+            id="customTitleInput"
+            type="text"
+            required
+            placeholder="যেমন: শতকরা ও লাভ-ক্ষতি অতিরিক্ত প্র্যাকটিস"
+            class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label for="customTipInput" class="block text-xs font-semibold text-slate-400 mb-1">ছোট টিপস বা নোট (ঐচ্ছিক)</label>
+          <input
+            id="customTipInput"
+            type="text"
+            placeholder="যেমন: ২৫ মিনিটে ২০টি এমসিকিউ সলভ"
+            class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button
+            type="button"
+            data-close-modal="addTaskModal"
+            class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+          >
+            বাতিল
+          </button>
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer"
+          >
+            তালিকায় যোগ করুন
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: PER-TASK NOTE EDITOR ==================== -->
+  <div id="noteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <span id="noteModalMeta" class="text-[11px] font-semibold text-amber-400 uppercase tracking-wide">সেশন নোট</span>
+          <h3 id="noteModalTitle" class="text-base sm:text-lg font-bold text-white leading-snug mt-0.5">
+            টাস্ক নোট
+          </h3>
+        </div>
+        <button type="button" data-close-modal="noteModal" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white shrink-0 cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-1.5">
+        <label for="noteModalTextarea" class="block text-xs text-slate-400">
+          ভিডিও টাইমস্ট্যাম্প, কুইজের স্কোর বা দুর্বল টপিক লিখে রাখুন
+        </label>
+        <textarea
+          id="noteModalTextarea"
+          rows="4"
+          placeholder="যেমন: ৩৫:২০ মিনিট পর্যন্ত দেখেছি; কুইজে ১৮/২০ পেয়েছি; এই সূত্রটা আবার দেখতে হবে..."
+          class="w-full px-3.5 py-2.5 rounded-xl text-sm bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/70"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <button
+          id="clearNoteBtn"
+          type="button"
+          class="px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+        >
+          নোট মুছুন
+        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            data-close-modal="noteModal"
+            class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+          >
+            বন্ধ করুন
+          </button>
+          <button
+            id="saveNoteBtn"
+            type="button"
+            class="px-5 py-2 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 cursor-pointer"
+          >
+            নোট সেভ করুন
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: RESTORE / COPY JSON ==================== -->
+  <div id="restoreModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold text-white">ব্যাকআপ রিস্টোর ও ট্রান্সফার</h3>
+        <button type="button" data-close-modal="restoreModal" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">✕</button>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-400">
+        অন্য ডিভাইসের JSON ফাইল আপলোড করুন অথবা কপি করা ব্যাকআপ কোড নিচে পেস্ট করে রিস্টোর করুন।
+      </p>
+
+      <!-- File Upload -->
+      <div class="space-y-2">
+        <label class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold border-2 border-dashed border-slate-700 hover:border-emerald-500/80 bg-slate-950/60 text-slate-200 cursor-pointer transition-colors">
+          <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          <span>JSON ব্যাকআপ ফাইল বেছে নিন</span>
+          <input id="restoreFileInput" type="file" accept=".json,application/json" class="hidden" />
+        </label>
+      </div>
+
+      <!-- Paste JSON -->
+      <div class="space-y-2 pt-1">
+        <textarea
+          id="restoreTextarea"
+          rows="3"
+          placeholder="অথবা কপি করা JSON ব্যাকআপ কোড এখানে পেস্ট করুন..."
+          class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        ></textarea>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="restorePasteBtn"
+            type="button"
+            class="flex-1 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all cursor-pointer"
+          >
+            পেস্ট করা ডেটা রিস্টোর করুন
+          </button>
+          <button
+            id="copyBackupCodeBtn"
+            type="button"
+            class="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer"
+          >
+            বর্তমান কোড কপি
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: RESET CONFIRMATION ==================== -->
+  <div id="resetModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="w-full max-w-sm rounded-2xl bg-slate-900 border border-slate-800 p-5 shadow-2xl space-y-4">
+      <div class="flex items-start gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white">সব অগ্রগতি রিসেট করবেন?</h3>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed">
+            এতে আপনার সব টিক চিহ্ন, লেখা নোট এবং কাস্টম টাস্ক মুছে গিয়ে একদম প্রথম অবস্থায় ফিরে যাবে। চাইলে আগে ব্যাকআপ ডাউনলোড করে রাখতে পারেন।
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button
+          type="button"
+          data-close-modal="resetModal"
+          class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 cursor-pointer"
+        >
+          বাতিল করুন
+        </button>
+        <button
+          id="confirmResetBtn"
+          type="button"
+          class="px-4 py-2 rounded-xl text-sm font-bold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer"
+        >
+          হ্যাঁ, রিসেট করুন
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 flex flex-col items-end gap-2 pointer-events-none"></div>
+
+  <!-- ==================== MODULAR APPLICATION JAVASCRIPT ==================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* =========================================================
+         1. CONSTANTS & DATE-FREE METADATA
+         ========================================================= */
+      const STORAGE_KEY = 'ntrca19_flexible_tracker_v2';
+      const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+
+      /**
+       * Convert digits in numbers or strings to Bengali numerals (০-৯).
+       */
+      function toBn(value) {
+        return String(value).replace(/\d/g, (digit) => BN_DIGITS[Number(digit)]);
+      }
+
+      /**
+       * Safely escape HTML characters for user inputs and notes.
+       */
+      function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      const SUBJECTS = {
+        math: {
+          label: 'গণিত',
+          badge: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+          bar: 'bg-indigo-500',
+          text: 'text-indigo-400',
+          dot: 'bg-indigo-400',
+          coreTarget: 14,
+        },
+        english: {
+          label: 'ইংরেজি',
+          badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+          bar: 'bg-emerald-500',
+          text: 'text-emerald-400',
+          dot: 'bg-emerald-400',
+          coreTarget: 14,
+        },
+        bangla: {
+          label: 'বাংলা',
+          badge: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+          bar: 'bg-amber-500',
+          text: 'text-amber-400',
+          dot: 'bg-amber-400',
+          coreTarget: 14,
+        },
+        gk: {
+          label: 'সাধারণ জ্ঞান',
+          badge: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
+          bar: 'bg-rose-500',
+          text: 'text-rose-400',
+          dot: 'bg-rose-400',
+          coreTarget: 14,
+        },
+        extra: {
+          label: 'রিভিশন ও টেকনিক্যাল',
+          badge: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+          bar: 'bg-violet-500',
+          text: 'text-violet-400',
+          dot: 'bg-violet-400',
+          coreTarget: 17,
+        },
+      };
+
+      const PHASES = {
+        1: 'পর্ব ১: ভিত্তি তৈরি ও ছন্দ ফেরানো (ক্লাস ১–২০)',
+        2: 'পর্ব ২: মূল সিলেবাস শেষ করা (ক্লাস ২১–৪০)',
+        3: 'পর্ব ৩: কোর্স সমাপ্তি, রিভিশন ও টেকনিক্যাল টাচ (ক্লাস ৪১–৫৬)',
+      };
+
+      const SETS_META = [
+        { set: 1, phase: 1, title: 'সেট ১ — সেশন ১ থেকে ৫' },
+        { set: 2, phase: 1, title: 'সেট ২ — সেশন ৬ থেকে ১০' },
+        { set: 3, phase: 1, title: 'সেট ৩ — সেশন ১১ থেকে ১৫' },
+        { set: 4, phase: 1, title: 'সেট ৪ — সেশন ১৬ থেকে ২০ ও পর্ব ১ রিভিশন' },
+        { set: 5, phase: 2, title: 'সেট ৫ — সেশন ২১ থেকে ২৫' },
+        { set: 6, phase: 2, title: 'সেট ৬ — সেশন ২৬ থেকে ৩০' },
+        { set: 7, phase: 2, title: 'সেট ৭ — সেশন ৩১ থেকে ৩৫' },
+        { set: 8, phase: 2, title: 'সেট ৮ — সেশন ৩৬ থেকে ৪০ ও পর্ব ২ রিভিশন' },
+        { set: 9, phase: 3, title: 'সেট ৯ — সেশন ৪১ থেকে ৪৫' },
+        { set: 10, phase: 3, title: 'সেট ১০ — সেশন ৪৬ থেকে ৫০' },
+        { set: 11, phase: 3, title: 'সেট ১১ — শেষ ৬টি ক্লাস (সেশন ৫১ থেকে ৫৬)' },
+        { set: 12, phase: 3, title: 'সেট ১২ — ফাইনাল রিভিশন ও টেকনিক্যাল (স্কুল-২ ও প্রদর্শক)' },
+      ];
+
+      /* =========================================================
+         2. EXACT 73 DEFAULT TASKS (56 CORE + 17 REVISION/TECH)
+         ========================================================= */
+      function buildDefaultTasks() {
+        const defaultTips = {
+          math: '১.৫x স্পিডে ভিডিও + শিটের ৫–৭টি অঙ্ক হাতে-কলমে',
+          english: '১.৫x স্পিডে ভিডিও + ২০–৩০টি এমসিকিউ প্র্যাকটিস',
+          bangla: 'ব্যাকরণ হলে ভিডিও, সাহিত্য/মুখস্থ হলে শুধু শিট রিডিং',
+          gk: 'ভিডিও বাদ দিয়ে শুধু শিট রিডিং + এমসিকিউ কুইজ',
+          extra: 'আগের সেশনগুলোর ভুলগুলো ঝালাই ও ছোট এমসিকিউ টেস্ট',
+        };
+
+        const list = [
+          // ========== পর্ব ১: সেট ১ ==========
+          { id: 's1-1', set: 1, subject: 'math', core: true, title: 'গণিত — ক্লাস ১', tip: '১.৫x স্পিডে ভিডিও + শিটের ৫–৭টি অঙ্ক হাতে-কলমে' },
+          { id: 's1-2', set: 1, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১', tip: '১.৫x স্পিডে ভিডিও + ২০–৩০টি এমসিকিউ' },
+          { id: 's1-3', set: 1, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১', tip: 'ব্যাকরণ হলে ভিডিও, মুখস্থ/সাহিত্য হলে শুধু শিট' },
+          { id: 's1-4', set: 1, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১', tip: 'ভিডিও বাদ দিয়ে শুধু শিট রিডিং + এমসিকিউ' },
+          { id: 's1-5', set: 1, subject: 'math', core: true, title: 'গণিত — ক্লাস ২', tip: '১.৫x স্পিডে ভিডিও + অঙ্ক প্র্যাকটিস' },
+          { id: 's1-6', set: 1, subject: 'extra', core: false, title: 'সেট ১ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাসের ওপর ৩০ মিনিটের এমসিকিউ টেস্ট' },
+
+          // ========== পর্ব ১: সেট ২ ==========
+          { id: 's2-1', set: 2, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ২' },
+          { id: 's2-2', set: 2, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ২' },
+          { id: 's2-3', set: 2, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ২' },
+          { id: 's2-4', set: 2, subject: 'math', core: true, title: 'গণিত — ক্লাস ৩' },
+          { id: 's2-5', set: 2, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৩' },
+          { id: 's2-6', set: 2, subject: 'extra', core: false, title: 'সেট ২ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ১: সেট ৩ ==========
+          { id: 's3-1', set: 3, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৩' },
+          { id: 's3-2', set: 3, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৩' },
+          { id: 's3-3', set: 3, subject: 'math', core: true, title: 'গণিত — ক্লাস ৪' },
+          { id: 's3-4', set: 3, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৪' },
+          { id: 's3-5', set: 3, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৪' },
+          { id: 's3-6', set: 3, subject: 'extra', core: false, title: 'সেট ৩ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ১: সেট ৪ ==========
+          { id: 's4-1', set: 4, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৪' },
+          { id: 's4-2', set: 4, subject: 'math', core: true, title: 'গণিত — ক্লাস ৫' },
+          { id: 's4-3', set: 4, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৫' },
+          { id: 's4-4', set: 4, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৫' },
+          { id: 's4-5', set: 4, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৫' },
+          { id: 's4-6', set: 4, subject: 'extra', core: false, title: 'পর্ব ১ রিভিশন ও বিদ্যাবাড়ির ১টি মডেল টেস্ট', tip: 'প্রথম ২০টি ক্লাস রিভিশন + ১টি মডেল টেস্ট' },
+          { id: 's4-7', set: 4, subject: 'extra', core: false, title: 'বোনাস: পেট্রোবাংলা পরীক্ষার অভিজ্ঞতা ও দুর্বল জায়গা নোট করা', tip: 'রিয়েল-লাইফ এক্সাম হল ও OMR অভিজ্ঞতা' },
+
+          // ========== পর্ব ২: সেট ৫ ==========
+          { id: 's5-1', set: 5, subject: 'math', core: true, title: 'গণিত — ক্লাস ৬' },
+          { id: 's5-2', set: 5, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৬' },
+          { id: 's5-3', set: 5, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৬' },
+          { id: 's5-4', set: 5, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৬' },
+          { id: 's5-5', set: 5, subject: 'math', core: true, title: 'গণিত — ক্লাস ৭' },
+          { id: 's5-6', set: 5, subject: 'extra', core: false, title: 'সেট ৫ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ২: সেট ৬ ==========
+          { id: 's6-1', set: 6, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৭' },
+          { id: 's6-2', set: 6, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৭' },
+          { id: 's6-3', set: 6, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৭' },
+          { id: 's6-4', set: 6, subject: 'math', core: true, title: 'গণিত — ক্লাস ৮' },
+          { id: 's6-5', set: 6, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৮' },
+          { id: 's6-6', set: 6, subject: 'extra', core: false, title: 'সেট ৬ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ২: সেট ৭ ==========
+          { id: 's7-1', set: 7, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৮' },
+          { id: 's7-2', set: 7, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৮' },
+          { id: 's7-3', set: 7, subject: 'math', core: true, title: 'গণিত — ক্লাস ৯' },
+          { id: 's7-4', set: 7, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ৯' },
+          { id: 's7-5', set: 7, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ৯' },
+          { id: 's7-6', set: 7, subject: 'extra', core: false, title: 'সেট ৭ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ২: সেট ৮ ==========
+          { id: 's8-1', set: 8, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ৯' },
+          { id: 's8-2', set: 8, subject: 'math', core: true, title: 'গণিত — ক্লাস ১০' },
+          { id: 's8-3', set: 8, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১০' },
+          { id: 's8-4', set: 8, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১০' },
+          { id: 's8-5', set: 8, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১০' },
+          { id: 's8-6', set: 8, subject: 'extra', core: false, title: 'পর্ব ২ রিভিশন ও ১টি পূর্ণাঙ্গ মডেল টেস্ট', tip: 'ঘড়ি ধরে ১০০ নম্বরের পূর্ণাঙ্গ টেস্ট ও ভুল বিশ্লেষণ' },
+
+          // ========== পর্ব ৩: সেট ৯ ==========
+          { id: 's9-1', set: 9, subject: 'math', core: true, title: 'গণিত — ক্লাস ১১' },
+          { id: 's9-2', set: 9, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১১' },
+          { id: 's9-3', set: 9, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১১' },
+          { id: 's9-4', set: 9, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১১' },
+          { id: 's9-5', set: 9, subject: 'math', core: true, title: 'গণিত — ক্লাস ১২' },
+          { id: 's9-6', set: 9, subject: 'extra', core: false, title: 'সেট ৯ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ৩: সেট ১০ ==========
+          { id: 's10-1', set: 10, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১২' },
+          { id: 's10-2', set: 10, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১২' },
+          { id: 's10-3', set: 10, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১২' },
+          { id: 's10-4', set: 10, subject: 'math', core: true, title: 'গণিত — ক্লাস ১৩' },
+          { id: 's10-5', set: 10, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১৩' },
+          { id: 's10-6', set: 10, subject: 'extra', core: false, title: 'সেট ১০ রিভিশন ও ছোট কুইজ', tip: 'এই সেটের ৫টি ক্লাস ঝালাই ও কুইজ' },
+
+          // ========== পর্ব ৩: সেট ১১ (শেষ ৬টি ক্লাস) ==========
+          { id: 's11-1', set: 11, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১৩' },
+          { id: 's11-2', set: 11, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১৩' },
+          { id: 's11-3', set: 11, subject: 'math', core: true, title: 'গণিত — ক্লাস ১৪ (গণিত শেষ!)', tip: 'শেষ ক্লাস + সব সূত্র একনজরে ঝালাই' },
+          { id: 's11-4', set: 11, subject: 'english', core: true, title: 'ইংরেজি — ক্লাস ১৪ (ইংরেজি শেষ!)', tip: 'শেষ ক্লাস + মূল গ্রামার রুলস রিভিশন' },
+          { id: 's11-5', set: 11, subject: 'bangla', core: true, title: 'বাংলা — ক্লাস ১৪ (বাংলা শেষ!)', tip: 'শেষ ক্লাস + ব্যাকরণ ও সাহিত্য শর্ট রিভিশন' },
+          { id: 's11-6', set: 11, subject: 'gk', core: true, title: 'সাধারণ জ্ঞান — ক্লাস ১৪ (পুরো কোর্স শেষ!)', tip: '৫৬টি মূল ক্লাস সম্পন্ন! বড় মাইলফলক 🎉' },
+
+          // ========== পর্ব ৩: সেট ১২ (ফাইনাল রিভিশন ও টেকনিক্যাল) ==========
+          { id: 's12-1', set: 12, subject: 'extra', core: false, title: 'বিগত সালের এনটিআরসিএ প্রশ্ন সলভ (স্কুল-২ পর্যায়)', tip: '৬ষ্ঠ–১৮তম স্কুল-২ প্রশ্নের ধরন ও পুনরাবৃত্তি যাচাই' },
+          { id: 's12-2', set: 12, subject: 'extra', core: false, title: 'বিগত সালের এনটিআরসিএ প্রশ্ন সলভ (কলেজ প্রদর্শক পর্যায়)', tip: 'প্রদর্শক পদের জন্য কলেজ পর্যায়ের প্রশ্ন অনুশীলন' },
+          { id: 's12-3', set: 12, subject: 'extra', core: false, title: 'কম্পিউটার ফান্ডামেন্টালস, সংখ্যা পদ্ধতি ও ডিজিটাল লজিক রিভিশন', tip: 'বাইনারি রূপান্তর, লজিক গেট ও CPU আর্কিটেকচার থিওরি' },
+          { id: 's12-4', set: 12, subject: 'extra', core: false, title: 'DBMS (SQL), নেটওয়ার্কিং ও প্রোগ্রামিং (C/OOP/HTML) বেসিক থিওরি রিভিশন', tip: 'OSI লেয়ার, SQL কমান্ড, Normalization ও OOP কনসেপ্ট' },
+          { id: 's12-5', set: 12, subject: 'extra', core: false, title: 'বিদ্যাবাড়ির ২টি পূর্ণাঙ্গ মডেল টেস্ট (ঘড়ি ধরে)', tip: 'নেগেটিভ মার্কিং এড়িয়ে পরীক্ষার সময়ের বাস্তব অনুশীলন' },
+          { id: 's12-6', set: 12, subject: 'extra', core: false, title: 'ভুলের খাতা রিভিশন ও দুর্বল অধ্যায় ঝালাই', tip: 'জমানো নোট ও কঠিন টপিকগুলো শেষবারের মতো চোখ বুলিয়ে নেওয়া' },
+        ];
+
+        let coreSessionNumber = 0;
+        return list.map((item) => {
+          if (item.core) coreSessionNumber += 1;
+          return {
+            id: item.id,
+            set: item.set,
+            subject: item.subject,
+            core: Boolean(item.core),
+            sessionNo: item.core ? coreSessionNumber : null,
+            title: item.title,
+            tip: item.tip || defaultTips[item.subject] || '',
+            completed: false,
+            note: '',
+            isCustom: false,
+          };
+        });
+      }
+
+      /* =========================================================
+         3. STATE MANAGEMENT & LOCALSTORAGE PERSISTENCE
+         ========================================================= */
+      const state = {
+        tasks: [],
+        filters: {
+          subject: 'all',
+          status: 'all',
+          search: '',
+        },
+        openSets: new Set([1]),
+        activeNoteTaskId: null,
+      };
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && Array.isArray(parsed.tasks) && parsed.tasks.length > 0) {
+              state.tasks = parsed.tasks;
+              const nextPending = state.tasks.find((t) => !t.completed);
+              state.openSets = new Set([nextPending ? nextPending.set : 1]);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('localStorage read error:', err);
+        }
+        state.tasks = buildDefaultTasks();
+        state.openSets = new Set([1]);
+      }
+
+      function saveState() {
+        try {
+          const payload = {
+            app: 'ntrca19-flexible-tracker',
+            version: 2,
+            tasks: state.tasks,
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch (err) {
+          console.error('localStorage write error:', err);
+          showToast('অফলাইন স্টোরেজে সেভ করতে সমস্যা হয়েছে।', 'error');
+        }
+      }
+
+      /* =========================================================
+         4. FEEDBACK UTILITIES (TOAST, CHIME, CONFETTI)
+         ========================================================= */
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+
+        const palette = {
+          success: 'bg-emerald-600 text-white border-emerald-500/80',
+          info: 'bg-slate-800 text-slate-100 border-slate-700',
+          error: 'bg-rose-600 text-white border-rose-500/80',
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `toast-enter pointer-events-auto px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold shadow-xl border max-w-xs sm:max-w-sm ${palette[type] || palette.info}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(8px)';
+          toast.style.transition = 'all 0.25s ease';
+          setTimeout(() => toast.remove(), 260);
+        }, 3000);
+      }
+
+      function playGentleChime() {
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          const ctx = new AudioContextClass();
+          const frequencies = [523.25, 659.25, 783.99, 1046.5]; // Warm C major arpeggio
+          frequencies.forEach((freq, index) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            const start = ctx.currentTime + index * 0.14;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.001, start);
+            gain.gain.exponentialRampToValueAtTime(0.13, start + 0.04);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.6);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.65);
+          });
+        } catch {
+          // Audio playback skipped if restricted by browser policy
+        }
+      }
+
+      function burstConfetti(originEl) {
+        const colors = ['#6366f1', '#10b981', '#f59e0b', '#f43f5e', '#a78bfa'];
+        let cx = window.innerWidth / 2;
+        let cy = window.innerHeight / 3;
+
+        if (originEl && typeof originEl.getBoundingClientRect === 'function') {
+          const rect = originEl.getBoundingClientRect();
+          cx = rect.left + rect.width / 2;
+          cy = rect.top + rect.height / 2;
+        }
+
+        for (let i = 0; i < 16; i += 1) {
+          const piece = document.createElement('div');
+          piece.className = 'confetti-piece';
+          const angle = (Math.PI * 2 * i) / 16 + (Math.random() - 0.5) * 0.4;
+          const distance = 45 + Math.random() * 80;
+          piece.style.left = `${cx}px`;
+          piece.style.top = `${cy}px`;
+          piece.style.backgroundColor = colors[i % colors.length];
+          piece.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+          piece.style.setProperty('--ty', `${Math.sin(angle) * distance - 22}px`);
+          piece.style.setProperty('--rot', `${Math.floor(Math.random() * 360)}deg`);
+          document.body.appendChild(piece);
+          setTimeout(() => piece.remove(), 950);
+        }
+      }
+
+      /* =========================================================
+         5. FOCUS TIMER (90 / 45 / 25 MIN PRESETS)
+         ========================================================= */
+      const timer = {
+        totalSeconds: 90 * 60,
+        remainingSeconds: 90 * 60,
+        isRunning: false,
+        endTime: null,
+        intervalId: null,
+      };
+
+      function clearTimerLoop() {
+        if (timer.intervalId) {
+          clearInterval(timer.intervalId);
+          timer.intervalId = null;
+        }
+      }
+
+      function renderTimer() {
+        const mins = Math.floor(timer.remainingSeconds / 60);
+        const secs = timer.remainingSeconds % 60;
+        const label = `${toBn(String(mins).padStart(2, '0'))}:${toBn(String(secs).padStart(2, '0'))}`;
+
+        const displayEl = document.getElementById('timerDisplay');
+        const barEl = document.getElementById('timerProgressBar');
+        const badgeEl = document.getElementById('timerStatusBadge');
+        const playIcon = document.getElementById('timerPlayIcon');
+        const pauseIcon = document.getElementById('timerPauseIcon');
+        const btnText = document.getElementById('timerToggleText');
+
+        if (displayEl) displayEl.textContent = label;
+        if (barEl) {
+          const pct = timer.totalSeconds > 0 ? Math.max(0, (timer.remainingSeconds / timer.totalSeconds) * 100) : 0;
+          barEl.style.width = `${pct}%`;
+        }
+
+        if (timer.isRunning) {
+          if (badgeEl) {
+            badgeEl.textContent = 'চলছে...';
+            badgeEl.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400';
+          }
+          playIcon?.classList.add('hidden');
+          pauseIcon?.classList.remove('hidden');
+          if (btnText) btnText.textContent = 'বিরতি দিন';
+          document.title = `(${label}) ১৯তম এনটিআরসিএ ফ্লেক্সিবল ট্র্যাকার`;
+        } else {
+          if (badgeEl) {
+            badgeEl.textContent =
+              timer.remainingSeconds === 0
+                ? 'সেশন শেষ 🎉'
+                : timer.remainingSeconds < timer.totalSeconds
+                  ? 'বিরতিতে'
+                  : 'প্রস্তুত';
+            badgeEl.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400';
+          }
+          playIcon?.classList.remove('hidden');
+          pauseIcon?.classList.add('hidden');
+          if (btnText) {
+            btnText.textContent =
+              timer.remainingSeconds < timer.totalSeconds && timer.remainingSeconds > 0 ? 'চালিয়ে যান' : 'শুরু করুন';
+          }
+          document.title = '১৯তম এনটিআরসিএ ফ্লেক্সিবল ট্র্যাকার (স্কুল-২ ও কলেজ প্রদর্শক)';
+        }
+      }
+
+      function toggleTimer() {
+        if (timer.isRunning) {
+          timer.isRunning = false;
+          clearTimerLoop();
+          renderTimer();
+          return;
+        }
+
+        if (timer.remainingSeconds <= 0) {
+          timer.remainingSeconds = timer.totalSeconds;
+        }
+
+        timer.isRunning = true;
+        timer.endTime = Date.now() + timer.remainingSeconds * 1000;
+        renderTimer();
+
+        timer.intervalId = setInterval(() => {
+          const left = Math.max(0, Math.round((timer.endTime - Date.now()) / 1000));
+          timer.remainingSeconds = left;
+          renderTimer();
+
+          if (left <= 0) {
+            timer.isRunning = false;
+            clearTimerLoop();
+            renderTimer();
+            playGentleChime();
+            burstConfetti(document.getElementById('timerDisplay'));
+            showToast('ফোকাস সেশন সম্পন্ন! দারুণ কাজ করেছেন 🎉', 'success');
+          }
+        }, 400);
+      }
+
+      function applyTimerPreset(minutes) {
+        clearTimerLoop();
+        timer.isRunning = false;
+        timer.totalSeconds = minutes * 60;
+        timer.remainingSeconds = minutes * 60;
+        renderTimer();
+
+        document.querySelectorAll('.timer-preset-btn').forEach((btn) => {
+          const active = Number(btn.dataset.preset) === minutes;
+          btn.className = active
+            ? 'timer-preset-btn px-2 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-indigo-500/20 border-indigo-500/45 text-indigo-200'
+            : 'timer-preset-btn px-2 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-800/80 border-slate-700/80 text-slate-300 hover:border-indigo-400/60';
+        });
+      }
+
+      /* =========================================================
+         6. UI RENDERERS
+         ========================================================= */
+      function renderNextUpCard() {
+        const nextTask = state.tasks.find((t) => !t.completed);
+        const badgeEl = document.getElementById('nextUpPositionBadge');
+        const bodyEl = document.getElementById('nextUpBody');
+        const buttonsEl = document.getElementById('nextUpButtons');
+        const doneBtn = document.getElementById('heroMarkDoneBtn');
+        const noteBtn = document.getElementById('heroEditNoteBtn');
+
+        if (!badgeEl || !bodyEl || !buttonsEl) return;
+
+        if (!nextTask) {
+          badgeEl.textContent = '১০০% সম্পন্ন';
+          bodyEl.innerHTML = `
+            <div class="py-2 space-y-2">
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                🎉 সম্পূর্ণ সিলেবাস শেষ
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-white leading-snug">
+                অভিনন্দন! ৫৬টি ক্লাস ও সব রিভিশন টাস্ক সম্পন্ন হয়েছে!
+              </h2>
+              <p class="text-sm text-slate-300">
+                কোনো বাড়তি চাপ ছাড়াই নিজের গতিতে পুরো প্রস্তুতি শেষ করেছেন—এখন আত্মবিশ্বাসের সাথে পরীক্ষার জন্য প্রস্তুত আপনি।
+              </p>
+            </div>
+          `;
+          buttonsEl.classList.add('hidden');
+          return;
+        }
+
+        const setMeta = SETS_META.find((s) => s.set === nextTask.set);
+        const phaseNum = setMeta ? setMeta.phase : 1;
+        const subj = SUBJECTS[nextTask.subject] || SUBJECTS.extra;
+
+        badgeEl.textContent = `পর্ব ${toBn(phaseNum)} • সেট ${toBn(nextTask.set)}`;
+        bodyEl.innerHTML = `
+          <div class="flex flex-wrap items-center gap-2">
+            ${
+              nextTask.sessionNo
+                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-200 border border-slate-700">সেশন ${toBn(nextTask.sessionNo)}</span>`
+                : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">রিভিশন / বোনাস</span>`
+            }
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${subj.badge}">
+              ${escapeHtml(subj.label)}
+            </span>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-bold text-white leading-snug">
+            ${escapeHtml(nextTask.title)}
+          </h2>
+
+          ${
+            nextTask.tip
+              ? `<p class="text-sm text-slate-300 flex items-start gap-1.5">
+                  <span class="text-amber-400 shrink-0">💡</span>
+                  <span>${escapeHtml(nextTask.tip)}</span>
+                </p>`
+              : ''
+          }
+
+          ${
+            nextTask.note && nextTask.note.trim()
+              ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs text-amber-200 max-w-full">
+                  <span class="shrink-0">📝</span>
+                  <span class="truncate">${escapeHtml(nextTask.note)}</span>
+                </div>`
+              : ''
+          }
+        `;
+
+        buttonsEl.classList.remove('hidden');
+        if (doneBtn) doneBtn.dataset.taskId = nextTask.id;
+        if (noteBtn) noteBtn.dataset.taskId = nextTask.id;
+      }
+
+      function renderProgressDashboard() {
+        const totalTasks = state.tasks.length;
+        const doneTasks = state.tasks.filter((t) => t.completed).length;
+
+        const coreTasks = state.tasks.filter((t) => t.core);
+        const totalCore = coreTasks.length;
+        const doneCore = coreTasks.filter((t) => t.completed).length;
+
+        const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+
+        const coreEl = document.getElementById('coreProgressText');
+        const totalEl = document.getElementById('totalProgressText');
+        const pctEl = document.getElementById('overallPercentText');
+        const barEl = document.getElementById('overallProgressBar');
+
+        if (coreEl) coreEl.textContent = `${toBn(doneCore)}/${toBn(totalCore)}`;
+        if (totalEl) totalEl.textContent = `${toBn(doneTasks)}/${toBn(totalTasks)}`;
+        if (pctEl) pctEl.textContent = `${toBn(pct)}%`;
+        if (barEl) barEl.style.width = `${pct}%`;
+
+        // 4 Subject Cards + 1 Revision & Technical Card
+        const gridEl = document.getElementById('subjectStatsGrid');
+        if (!gridEl) return;
+
+        const cardKeys = ['math', 'english', 'bangla', 'gk', 'extra'];
+        gridEl.innerHTML = cardKeys
+          .map((key) => {
+            const meta = SUBJECTS[key];
+            const relevant =
+              key === 'extra'
+                ? state.tasks.filter((t) => t.subject === 'extra')
+                : state.tasks.filter((t) => t.subject === key && t.core);
+            const done = relevant.filter((t) => t.completed).length;
+            const total = relevant.length || meta.coreTarget;
+            const subjPct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            return `
+              <div class="rounded-xl bg-slate-950/60 border border-slate-800/90 p-3 space-y-2">
+                <div class="flex items-center justify-between gap-1.5">
+                  <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-200 truncate">
+                    <span class="w-2 h-2 rounded-full shrink-0 ${meta.dot}"></span>
+                    <span class="truncate">${escapeHtml(meta.label)}</span>
+                  </span>
+                  <span class="text-xs font-bold tabular-nums shrink-0 ${meta.text}">
+                    ${toBn(done)}/${toBn(total)}
+                  </span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div class="h-full ${meta.bar} rounded-full transition-all duration-500" style="width: ${subjPct}%"></div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      function renderFilterPills() {
+        document.querySelectorAll('.subj-pill').forEach((btn) => {
+          const key = btn.dataset.subject;
+          const active = key === state.filters.subject;
+          if (key === 'all') {
+            btn.className = active
+              ? 'subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer bg-white text-slate-950 shadow-sm'
+              : 'subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer bg-slate-800 text-slate-300 hover:bg-slate-700';
+          } else {
+            const meta = SUBJECTS[key];
+            btn.className = active
+              ? `subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${meta.badge} ring-2 ring-offset-1 ring-offset-slate-900 ring-indigo-500/50`
+              : `subj-pill shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer border ${meta.badge} opacity-75 hover:opacity-100`;
+          }
+        });
+
+        document.querySelectorAll('.status-pill').forEach((btn) => {
+          const active = btn.dataset.status === state.filters.status;
+          btn.className = active
+            ? 'status-pill px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-indigo-600 text-white shadow-sm'
+            : 'status-pill px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer text-slate-400 hover:text-slate-200';
+        });
+      }
+
+      function renderSetsList() {
+        const container = document.getElementById('setsContainer');
+        if (!container) return;
+
+        const { subject, status, search } = state.filters;
+        const query = search.trim().toLowerCase();
+        const isFiltering = subject !== 'all' || status !== 'all' || query.length > 0;
+
+        let html = '';
+        let lastRenderedPhase = null;
+        let visibleTaskCount = 0;
+
+        SETS_META.forEach((setMeta) => {
+          const allInSet = state.tasks.filter((t) => t.set === setMeta.set);
+          const matchingInSet = allInSet.filter((t) => {
+            if (subject !== 'all' && t.subject !== subject) return false;
+            if (status === 'pending' && t.completed) return false;
+            if (status === 'done' && !t.completed) return false;
+            if (query) {
+              const subjLabel = (SUBJECTS[t.subject]?.label || '').toLowerCase();
+              const haystack = `${t.title} ${t.tip || ''} ${t.note || ''} ${subjLabel}`.toLowerCase();
+              if (!haystack.includes(query)) return false;
+            }
+            return true;
+          });
+
+          if (isFiltering && matchingInSet.length === 0) return;
+
+          visibleTaskCount += matchingInSet.length;
+
+          // Phase Heading
+          if (lastRenderedPhase !== setMeta.phase) {
+            lastRenderedPhase = setMeta.phase;
+            html += `
+              <div class="pt-3 pb-1 flex items-center gap-2.5">
+                <span class="h-5 w-1.5 rounded-full bg-indigo-500"></span>
+                <h2 class="text-sm sm:text-base font-bold text-slate-200 tracking-wide">
+                  ${escapeHtml(PHASES[setMeta.phase])}
+                </h2>
+              </div>
+            `;
+          }
+
+          const doneCount = allInSet.filter((t) => t.completed).length;
+          const totalCount = allInSet.length;
+          const setPct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+          const isSetComplete = totalCount > 0 && doneCount === totalCount;
+          const isOpen = state.openSets.has(setMeta.set) || isFiltering;
+
+          html += `
+            <div class="rounded-2xl bg-slate-900/90 border ${isSetComplete ? 'border-emerald-500/35' : 'border-slate-800/90'} shadow-lg shadow-black/20 overflow-hidden ${isOpen ? 'accordion-open' : ''}">
+              <!-- Set Accordion Header -->
+              <button
+                type="button"
+                data-toggle-set="${setMeta.set}"
+                class="w-full px-4 sm:px-5 py-3.5 sm:py-4 flex items-center justify-between gap-3 text-left hover:bg-slate-800/50 transition-colors cursor-pointer"
+              >
+                <div class="min-w-0 flex flex-wrap items-center gap-2">
+                  <h3 class="text-sm sm:text-base font-bold text-white leading-snug">
+                    ${escapeHtml(setMeta.title)}
+                  </h3>
+                  ${
+                    isSetComplete
+                      ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">সম্পন্ন ✓</span>'
+                      : ''
+                  }
+                </div>
+
+                <div class="flex items-center gap-3 shrink-0">
+                  <div class="hidden sm:block w-20 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                    <div class="h-full ${isSetComplete ? 'bg-emerald-500' : 'bg-indigo-500'} rounded-full transition-all duration-300" style="width: ${setPct}%"></div>
+                  </div>
+                  <span class="text-xs font-bold tabular-nums px-2.5 py-1 rounded-lg ${isSetComplete ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-300'}">
+                    ${toBn(doneCount)}/${toBn(totalCount)} সম্পন্ন
+                  </span>
+                  <svg class="accordion-chevron w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
+
+              <!-- Set Task Rows -->
+              <div class="${isOpen ? 'block' : 'hidden'} border-t border-slate-800/80 divide-y divide-slate-800/70">
+                ${matchingInSet.map((task) => renderTaskRow(task)).join('')}
+              </div>
+            </div>
+          `;
+        });
+
+        if (visibleTaskCount === 0) {
+          html = `
+            <div class="rounded-2xl bg-slate-900/90 border border-slate-800 p-8 text-center space-y-2">
+              <div class="text-3xl">🔍</div>
+              <h3 class="text-base font-bold text-slate-100">কোনো টাস্ক পাওয়া যায়নি</h3>
+              <p class="text-xs sm:text-sm text-slate-400">
+                অন্য বিষয় বা স্ট্যাটাস ফিল্টার সিলেক্ট করুন অথবা সার্চ বক্সটি ক্লিয়ার করুন।
+              </p>
+            </div>
+          `;
+        }
+
+        container.innerHTML = html;
+        updateExpandAllLabel();
+      }
+
+      function renderTaskRow(task) {
+        const subj = SUBJECTS[task.subject] || SUBJECTS.extra;
+        const hasNote = Boolean(task.note && task.note.trim().length > 0);
+
+        return `
+          <div class="px-3.5 sm:px-5 py-3.5 transition-colors hover:bg-slate-800/35 ${task.completed ? 'task-done bg-slate-950/35' : ''}">
+            <div class="flex items-start gap-3 sm:gap-3.5">
+              <!-- Custom Checkbox -->
+              <button
+                type="button"
+                data-toggle-task="${task.id}"
+                aria-label="টাস্ক সম্পন্ন চিহ্নিত করুন"
+                class="task-checkbox mt-0.5 w-6 h-6 sm:w-7 sm:h-7 rounded-lg border-2 flex items-center justify-center shrink-0 cursor-pointer ${
+                  task.completed
+                    ? 'checked bg-emerald-500 border-emerald-500 text-white shadow-sm shadow-emerald-500/30'
+                    : 'border-slate-600 hover:border-indigo-400 bg-slate-950/70'
+                }"
+              >
+                ${
+                  task.completed
+                    ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>'
+                    : ''
+                }
+              </button>
+
+              <!-- Task Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                  ${
+                    task.sessionNo
+                      ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-800 text-slate-300">সেশন ${toBn(task.sessionNo)}</span>`
+                      : ''
+                  }
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${subj.badge}">
+                    ${escapeHtml(subj.label)}
+                  </span>
+                  ${
+                    task.isCustom
+                      ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-sky-500/15 text-sky-300 border border-sky-500/25">কাস্টম</span>'
+                      : ''
+                  }
+                </div>
+
+                <div
+                  data-toggle-task="${task.id}"
+                  class="task-title text-sm sm:text-base font-semibold text-slate-100 leading-snug cursor-pointer"
+                >
+                  ${escapeHtml(task.title)}
+                </div>
+
+                ${
+                  task.tip
+                    ? `<p class="task-tip text-xs text-slate-400 mt-0.5 leading-relaxed">টিপস: ${escapeHtml(task.tip)}</p>`
+                    : ''
+                }
+
+                ${
+                  hasNote
+                    ? `<button
+                        type="button"
+                        data-open-note="${task.id}"
+                        class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-xs text-amber-200 max-w-full transition-colors cursor-pointer text-left"
+                      >
+                        <span class="shrink-0">📝</span>
+                        <span class="truncate">${escapeHtml(task.note)}</span>
+                      </button>`
+                    : ''
+                }
+              </div>
+
+              <!-- Row Action Buttons -->
+              <div class="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  data-open-note="${task.id}"
+                  title="নোট লিখুন বা দেখুন"
+                  class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    hasNote
+                      ? 'bg-amber-500/20 text-amber-200 border border-amber-500/35 hover:bg-amber-500/30'
+                      : 'bg-slate-800/90 text-slate-400 hover:text-slate-100 hover:bg-slate-700 border border-slate-700/70'
+                  }"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span class="hidden sm:inline">নোট</span>
+                  ${hasNote ? '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>' : ''}
+                </button>
+
+                ${
+                  task.isCustom
+                    ? `<button
+                        type="button"
+                        data-delete-task="${task.id}"
+                        title="কাস্টম টাস্ক মুছুন"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/15 transition-colors cursor-pointer"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>`
+                    : ''
+                }
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function updateExpandAllLabel() {
+        const btn = document.getElementById('toggleAllSetsBtn');
+        if (!btn) return;
+        const allOpen = state.openSets.size >= SETS_META.length;
+        btn.textContent = allOpen ? 'সব বন্ধ করুন' : 'সব খুলুন';
+      }
+
+      function renderAll() {
+        renderNextUpCard();
+        renderProgressDashboard();
+        renderFilterPills();
+        renderSetsList();
+      }
+
+      /* =========================================================
+         7. TASK MUTATIONS & MODALS
+         ========================================================= */
+      function toggleTask(taskId, triggerEl) {
+        const task = state.tasks.find((t) => t.id === taskId);
+        if (!task) return;
+
+        task.completed = !task.completed;
+        saveState();
+
+        if (task.completed) {
+          burstConfetti(triggerEl);
+          const sameSet = state.tasks.filter((t) => t.set === task.set);
+          if (sameSet.every((t) => t.completed) && task.set < 12) {
+            state.openSets.add(task.set + 1);
+            showToast(`সেট ${toBn(task.set)} সম্পন্ন! দারুণ এগোচ্ছেন 🔥`, 'success');
+          }
+        }
+
+        renderAll();
+      }
+
+      function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      function openNoteEditor(taskId) {
+        const task = state.tasks.find((t) => t.id === taskId);
+        if (!task) return;
+
+        state.activeNoteTaskId = task.id;
+        const metaEl = document.getElementById('noteModalMeta');
+        const titleEl = document.getElementById('noteModalTitle');
+        const textarea = document.getElementById('noteModalTextarea');
+
+        if (metaEl) metaEl.textContent = `সেট ${toBn(task.set)} • ${SUBJECTS[task.subject]?.label || ''}`;
+        if (titleEl) titleEl.textContent = task.title;
+        if (textarea) textarea.value = task.note || '';
+
+        openModal('noteModal');
+        setTimeout(() => textarea?.focus(), 60);
+      }
+
+      function saveActiveNote() {
+        if (!state.activeNoteTaskId) return;
+        const task = state.tasks.find((t) => t.id === state.activeNoteTaskId);
+        const textarea = document.getElementById('noteModalTextarea');
+        if (!task || !textarea) return;
+
+        task.note = textarea.value.trim();
+        saveState();
+        renderAll();
+        closeModal('noteModal');
+        showToast('নোট সংরক্ষিত হয়েছে 📝', 'success');
+      }
+
+      function handleAddCustomTask(event) {
+        event.preventDefault();
+        const setEl = document.getElementById('customSetSelect');
+        const subjectEl = document.getElementById('customSubjectSelect');
+        const titleEl = document.getElementById('customTitleInput');
+        const tipEl = document.getElementById('customTipInput');
+
+        const title = titleEl?.value.trim();
+        if (!title) {
+          showToast('অনুগ্রহ করে টাস্কের নাম লিখুন।', 'error');
+          return;
+        }
+
+        const setNum = Number(setEl?.value) || 1;
+        const newTask = {
+          id: `custom-${Date.now()}`,
+          set: setNum,
+          subject: subjectEl?.value || 'extra',
+          core: false,
+          sessionNo: null,
+          title,
+          tip: tipEl?.value.trim() || '',
+          completed: false,
+          note: '',
+          isCustom: true,
+        };
+
+        state.tasks.push(newTask);
+        state.openSets.add(setNum);
+        saveState();
+
+        if (titleEl) titleEl.value = '';
+        if (tipEl) tipEl.value = '';
+        closeModal('addTaskModal');
+        renderAll();
+        showToast(`সেট ${toBn(setNum)}-এ নতুন টাস্ক যোগ করা হয়েছে।`, 'success');
+      }
+
+      function deleteCustomTask(taskId) {
+        const index = state.tasks.findIndex((t) => t.id === taskId && t.isCustom);
+        if (index === -1) return;
+        state.tasks.splice(index, 1);
+        saveState();
+        renderAll();
+        showToast('কাস্টম টাস্কটি মুছে ফেলা হয়েছে।', 'info');
+      }
+
+      /* =========================================================
+         8. JSON BACKUP, RESTORE & RESET
+         ========================================================= */
+      function buildExportJson() {
+        return JSON.stringify(
+          {
+            app: 'ntrca19-flexible-tracker',
+            version: 2,
+            tasks: state.tasks,
+          },
+          null,
+          2
+        );
+      }
+
+      function downloadBackupJson() {
+        try {
+          const content = buildExportJson();
+          const blob = new Blob([content], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'ntrca-19th-flexible-backup.json';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          showToast('ব্যাকআপ JSON ফাইল ডাউনলোড হয়েছে।', 'success');
+        } catch {
+          showToast('ব্যাকআপ ফাইল ডাউনলোড করা যায়নি।', 'error');
+        }
+      }
+
+      function copyBackupJson() {
+        const content = buildExportJson();
+        const helper = document.createElement('textarea');
+        helper.value = content;
+        helper.style.position = 'fixed';
+        helper.style.opacity = '0';
+        document.body.appendChild(helper);
+        helper.select();
+        try {
+          document.execCommand('copy');
+          showToast('ব্যাকআপ কোড ক্লিপবোর্ডে কপি হয়েছে।', 'success');
+        } catch {
+          showToast('কপি করা যায়নি, অনুগ্রহ করে JSON ডাউনলোড করুন।', 'error');
+        }
+        document.body.removeChild(helper);
+      }
+
+      function restoreFromJson(rawText) {
+        try {
+          const parsed = JSON.parse(rawText);
+          if (!parsed || !Array.isArray(parsed.tasks) || parsed.tasks.length === 0) {
+            throw new Error('Invalid JSON payload');
+          }
+
+          const isValid = parsed.tasks.every(
+            (t) => t && typeof t.id === 'string' && typeof t.set === 'number' && typeof t.title === 'string'
+          );
+          if (!isValid) throw new Error('Invalid task items');
+
+          state.tasks = parsed.tasks.map((t) => ({
+            id: String(t.id),
+            set: Math.min(12, Math.max(1, Number(t.set) || 1)),
+            subject: SUBJECTS[t.subject] ? t.subject : 'extra',
+            core: Boolean(t.core),
+            sessionNo: typeof t.sessionNo === 'number' ? t.sessionNo : null,
+            title: String(t.title),
+            tip: String(t.tip || ''),
+            completed: Boolean(t.completed),
+            note: String(t.note || ''),
+            isCustom: Boolean(t.isCustom),
+          }));
+
+          const nextPending = state.tasks.find((t) => !t.completed);
+          state.openSets = new Set([nextPending ? nextPending.set : 1]);
+          saveState();
+          renderAll();
+          closeModal('restoreModal');
+          const pasteEl = document.getElementById('restoreTextarea');
+          if (pasteEl) pasteEl.value = '';
+          showToast('ব্যাকআপ ডেটা সফলভাবে রিস্টোর হয়েছে 🎉', 'success');
+        } catch {
+          showToast('ভুল JSON ফরম্যাট! সঠিক ব্যাকআপ ফাইল বা কোড দিন।', 'error');
+        }
+      }
+
+      function resetAllProgress() {
+        state.tasks = buildDefaultTasks();
+        state.filters = { subject: 'all', status: 'all', search: '' };
+        state.openSets = new Set([1]);
+        saveState();
+
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = '';
+        document.getElementById('clearSearchBtn')?.classList.add('hidden');
+
+        renderAll();
+        closeModal('resetModal');
+        showToast('সব অগ্রগতি নতুন করে শুরু করা হয়েছে।', 'info');
+      }
+
+      /* =========================================================
+         9. INITIALIZATION & EVENT LISTENERS
+         ========================================================= */
+      function populateSetSelector() {
+        const sel = document.getElementById('customSetSelect');
+        if (!sel) return;
+        sel.innerHTML = SETS_META.map(
+          (s) => `<option value="${s.set}">${escapeHtml(s.title)}</option>`
+        ).join('');
+      }
+
+      function bindEvents() {
+        // Header Controls
+        document.getElementById('downloadBackupBtn')?.addEventListener('click', downloadBackupJson);
+        document.getElementById('openRestoreBtn')?.addEventListener('click', () => openModal('restoreModal'));
+        document.getElementById('openResetBtn')?.addEventListener('click', () => openModal('resetModal'));
+
+        // Hero Next Up Actions
+        document.getElementById('heroMarkDoneBtn')?.addEventListener('click', function () {
+          if (this.dataset.taskId) toggleTask(this.dataset.taskId, this);
+        });
+        document.getElementById('heroEditNoteBtn')?.addEventListener('click', function () {
+          if (this.dataset.taskId) openNoteEditor(this.dataset.taskId);
+        });
+
+        // Focus Timer
+        document.getElementById('timerToggleBtn')?.addEventListener('click', toggleTimer);
+        document.getElementById('timerResetBtn')?.addEventListener('click', () => {
+          clearTimerLoop();
+          timer.isRunning = false;
+          timer.remainingSeconds = timer.totalSeconds;
+          renderTimer();
+        });
+        document.querySelectorAll('.timer-preset-btn').forEach((btn) => {
+          btn.addEventListener('click', () => applyTimerPreset(Number(btn.dataset.preset)));
+        });
+
+        // Search Input
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        searchInput?.addEventListener('input', (e) => {
+          state.filters.search = e.target.value;
+          if (clearSearchBtn) {
+            clearSearchBtn.classList.toggle('hidden', !e.target.value);
+            clearSearchBtn.classList.toggle('flex', Boolean(e.target.value));
+          }
+          renderSetsList();
+        });
+        clearSearchBtn?.addEventListener('click', () => {
+          if (searchInput) searchInput.value = '';
+          state.filters.search = '';
+          clearSearchBtn.classList.add('hidden');
+          clearSearchBtn.classList.remove('flex');
+          renderSetsList();
+          searchInput?.focus();
+        });
+
+        // Subject & Status Filter Pills
+        document.getElementById('subjectFilterBar')?.addEventListener('click', (e) => {
+          const btn = e.target.closest('.subj-pill');
+          if (!btn) return;
+          state.filters.subject = btn.dataset.subject;
+          renderFilterPills();
+          renderSetsList();
+        });
+
+        document.getElementById('statusFilterBar')?.addEventListener('click', (e) => {
+          const btn = e.target.closest('.status-pill');
+          if (!btn) return;
+          state.filters.status = btn.dataset.status;
+          renderFilterPills();
+          renderSetsList();
+        });
+
+        // Expand / Collapse All Sets
+        document.getElementById('toggleAllSetsBtn')?.addEventListener('click', () => {
+          if (state.openSets.size >= SETS_META.length) {
+            state.openSets.clear();
+          } else {
+            SETS_META.forEach((s) => state.openSets.add(s.set));
+          }
+          renderSetsList();
+        });
+
+        // Add Custom Task Modal
+        document.getElementById('openAddTaskBtn')?.addEventListener('click', () => {
+          openModal('addTaskModal');
+          setTimeout(() => document.getElementById('customTitleInput')?.focus(), 60);
+        });
+        document.getElementById('addTaskForm')?.addEventListener('submit', handleAddCustomTask);
+
+        // Delegated Clicks inside Sets List
+        document.getElementById('setsContainer')?.addEventListener('click', (e) => {
+          const setToggle = e.target.closest('[data-toggle-set]');
+          if (setToggle) {
+            const setNum = Number(setToggle.dataset.toggleSet);
+            if (state.openSets.has(setNum)) {
+              state.openSets.delete(setNum);
+            } else {
+              state.openSets.add(setNum);
+            }
+            renderSetsList();
+            return;
+          }
+
+          const taskToggle = e.target.closest('[data-toggle-task]');
+          if (taskToggle) {
+            toggleTask(taskToggle.dataset.toggleTask, taskToggle);
+            return;
+          }
+
+          const noteBtn = e.target.closest('[data-open-note]');
+          if (noteBtn) {
+            openNoteEditor(noteBtn.dataset.openNote);
+            return;
+          }
+
+          const deleteBtn = e.target.closest('[data-delete-task]');
+          if (deleteBtn) {
+            deleteCustomTask(deleteBtn.dataset.deleteTask);
+          }
+        });
+
+        // Note Modal Actions
+        document.getElementById('saveNoteBtn')?.addEventListener('click', saveActiveNote);
+        document.getElementById('clearNoteBtn')?.addEventListener('click', () => {
+          const ta = document.getElementById('noteModalTextarea');
+          if (ta) ta.value = '';
+          saveActiveNote();
+        });
+        document.getElementById('noteModalTextarea')?.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            saveActiveNote();
+          }
+        });
+
+        // Restore Modal Actions
+        document.getElementById('restoreFileInput')?.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => restoreFromJson(String(ev.target?.result || ''));
+          reader.onerror = () => showToast('ফাইল পড়তে সমস্যা হয়েছে।', 'error');
+          reader.readAsText(file);
+          e.target.value = '';
+        });
+
+        document.getElementById('restorePasteBtn')?.addEventListener('click', () => {
+          const text = document.getElementById('restoreTextarea')?.value.trim();
+          if (!text) {
+            showToast('প্রথমে ব্যাকআপ কোড পেস্ট করুন।', 'error');
+            return;
+          }
+          restoreFromJson(text);
+        });
+
+        document.getElementById('copyBackupCodeBtn')?.addEventListener('click', copyBackupJson);
+
+        // Reset Confirmation
+        document.getElementById('confirmResetBtn')?.addEventListener('click', resetAllProgress);
+
+        // Unified Modal Close (Buttons, Backdrop Click, Escape Key)
+        document.querySelectorAll('[data-close-modal]').forEach((btn) => {
+          btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+        });
+
+        ['addTaskModal', 'noteModal', 'restoreModal', 'resetModal'].forEach((id) => {
+          document.getElementById(id)?.addEventListener('click', (e) => {
+            if (e.target.id === id) closeModal(id);
+          });
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            ['addTaskModal', 'noteModal', 'restoreModal', 'resetModal'].forEach(closeModal);
+          }
+        });
+      }
+
+      // Start Application
+      document.addEventListener('DOMContentLoaded', () => {
+        loadState();
+        populateSetSelector();
+        renderTimer();
+        bindEvents();
+        renderAll();
+      });
+    })();
+  </script>
+</body>
+</html>
